@@ -8,6 +8,7 @@ import org.study.patientservice.dto.PatientResponseDTO;
 import org.study.patientservice.exception.ExistedEmailExceptionHandler;
 import org.study.patientservice.exception.PatientNotFoundException;
 import org.study.patientservice.grpc.BillingServiceGrpcClient;
+import org.study.patientservice.kafka.KafkaProducer;
 import org.study.patientservice.mapper.PatientMapper;
 import org.study.patientservice.model.Patient;
 import org.study.patientservice.repository.PatientRepository;
@@ -22,10 +23,13 @@ public class PatientService {
     private static final Logger log = LoggerFactory.getLogger(PatientService.class);
     private final PatientRepository patientRepository;
     private final BillingServiceGrpcClient billingServiceGrpcClient;
+    private final KafkaProducer kafkaProducer;
 
-    public PatientService(PatientRepository patientRepository, BillingServiceGrpcClient billingServiceGrpcClient) {
+    public PatientService(PatientRepository patientRepository, BillingServiceGrpcClient billingServiceGrpcClient,
+                          KafkaProducer kafkaProducer) {
         this.billingServiceGrpcClient = billingServiceGrpcClient;
         this.patientRepository = patientRepository;
+        this.kafkaProducer = kafkaProducer;
     }
 
     public List<PatientResponseDTO> getPatient() {
@@ -43,6 +47,8 @@ public class PatientService {
 
         billingServiceGrpcClient.createBillingAccount(createdPatient.getId().toString()
         ,createdPatient.getName(), createdPatient.getEmail());
+
+        kafkaProducer.sendEvent(createdPatient);
 
         return PatientMapper.toDTO(createdPatient);
     }
