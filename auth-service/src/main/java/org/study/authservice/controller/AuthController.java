@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.study.authservice.dto.LoginRequestDTO;
 import org.study.authservice.dto.LoginResponseDTO;
 import org.study.authservice.service.AuthService;
@@ -36,7 +33,7 @@ public class AuthController {
     }
 
     @Operation(summary = "Validate token")
-    @PostMapping("/validate")
+    @GetMapping("/validate")
     public ResponseEntity<Void> validate(@RequestHeader("Authorization") String auth) {
         if(auth == null || !auth.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
